@@ -1,0 +1,33 @@
+# Wakapi - self-hosted coding time tracker for the team
+# Docs: https://github.com/muety/wakapi
+#
+# Usage:
+#   docker compose up -d
+#   docker compose logs -f wakapi
+#
+# Point your editor plugins (~/.wakatime.cfg) at:
+#   api_url = http://<host>:3001/api
+
+services:
+  wakapi:
+    image: ghcr.io/muety/wakapi:2.18.2
+    container_name: wakapi-b
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"   # exposed via the reverse proxy on the host
+    environment:
+      TZ: America/New_York
+      WAKAPI_PUBLIC_URL: "http://localhost:3001"
+      WAKAPI_PASSWORD_SALT: "vWwsTHpiTi8sUH9KfYF8"
+      WAKAPI_ALLOW_SIGNUP: "true"
+      WAKAPI_INSECURE_COOKIES: "true"
+      # keep a full year of heartbeats importable (editor plugins that were offline for a while)
+      WAKAPI_HEARTBEAT_MAX_AGE: "8760h"
+      WAKAPI_LEADERBOARD_ENABLED: "false"
+      # our internal mail domain has no public MX record
+      WAKAPI_MAIL_SKIP_VERIFY_MX_RECORD: "true"
+      # database
+      WAKAPI_DB_TYPE: sqlite3
+      WAKAPI_DB_NAME: /data/wakapi.db
+    volumes:
+      - ./data:/data
